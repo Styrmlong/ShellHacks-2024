@@ -8,6 +8,7 @@ from wtforms import (
     DecimalField,
     SubmitField,
 )
+from wtforms.fields import DateField
 from wtforms.validators import (
     DataRequired,
     Optional,
@@ -54,7 +55,7 @@ class ScholarshipApplicationForm(FlaskForm):
     # 'other' input option ^ if major is not listed ***
 
     # Education Information
-    year_in_college = SelectField(
+    years_in_college = SelectField(
         'Year in College',
         choices=[
             ('1', '1st Year'),
@@ -99,19 +100,12 @@ class ScholarshipApplicationForm(FlaskForm):
     )
 
     # Date of Birth Input with Date Picker
-    date_of_birth = StringField(
+    date_of_birth = DateField(
         'Date of Birth (MM/DD/YYYY)',
-        validators=[DataRequired(message="Please enter date in MM/DD/YYYY format.")]
-    )
+        format='%m/%d/%Y', validators=[DataRequired()]
+        )
 
-    contact_email = StringField(
-        'Email',
-        validators=[DataRequired(), Email()]
-    )
-    contact_phone = StringField(
-        'Phone Number',
-        validators=[DataRequired()]
-    )
+
 
     # Gender Identity
     gender_identity = SelectField(
@@ -135,12 +129,12 @@ class ScholarshipApplicationForm(FlaskForm):
     # Additional Demographics
     florida_resident = RadioField(
         'Are you a Florida resident?',
-        choices=[('yes', 'Yes'), ('no', 'No')],
+        choices=[(True, 'Yes'), (False, 'No')],
         validators=[DataRequired()]
     )
     first_gen_college_student = RadioField(
         'Are you a first-generation college student?',
-        choices=[('yes', 'Yes'), ('no', 'No')],
+        choices=[(True, 'Yes'), (False, 'No')],
         validators=[DataRequired()]
     )
 
@@ -188,12 +182,6 @@ class ScholarshipApplicationForm(FlaskForm):
     )
 
     submit = SubmitField('Submit')
-
-    # Custom Validators
-    def validate_expected_graduation(form, field):
-        pattern = r"^(Fall|Spring|Summer) (202[4-9]|203[0-4])$"
-        if not re.match(pattern, field.data):
-            raise ValidationError("Invalid format. Please select a season and year (e.g., Fall 2024).")
 
     def validate_gender_self_describe(form, field):
         if form.gender_identity.data == 'self-describe' and not field.data.strip():

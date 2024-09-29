@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content_title %}
+Dashboard
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <!-- Additional CSS for Widgets -->
+    <style>
+        /* Interactive User Card Styling */
+        .interactive-card {
+            width: 100%;
+            margin-bottom: 20px;
+            height: 100%; /* Make it take up full height */
+        }
+        .interactive-card .card-header {
+            background-color: #007bff;
+            color: white;
+            font-size: 1.25rem;
+            text-align: center;
+        }
+        .interactive-card .card-body {
+            padding: 20px;
+        }
+        .interactive-card .info-item img {
+            filter: invert(34%) sepia(93%) saturate(5000%) hue-rotate(200deg) brightness(100%) contrast(101%);
+        }
+
+        /* Tuition & Fees Flip Card Styling */
+        .flip-card-container {
+            width: 45%; /* Adjust the width to take up less than half the space */
+            margin-bottom: 20px;
+            margin-left: 20px; /* Add spacing between the cards */
+            height: 100%; /* Make it take up full height */
+        }
+        .flip-card-container .card-header {
+            background-color: #28a745;
+            color: white;
+            font-size: 1.25rem;
+            text-align: center;
+        }
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 100%; /* Ensure it takes full height */
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+        }
+        .flip-card-front {
+            background-color: #f1f1f1;
+            color: black;
+        }
+        .flip-card-back {
+            background-color: #333;
+            color: white;
+            transform: rotateY(180deg);
+        }
+        .flip-card.active .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .flip-indicator span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin: 0 5px;
+            background-color: #ccc;
+        }
+        .flip-indicator .active {
+            background-color: #28a745;
+        }
+
+        /* Tall Green Box Styling */
+        .tall-green-box {
+            background-color: #28a745;
+            color: white;
+            height: 200px; /* Reduced height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        /* Full height for Future Widget container */
+        .future-widget-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Aligns the content to the bottom */
+        }
+
+        /* Ensure both columns are equal height */
+        .equal-height-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .equal-height-col {
+            width: 50%; /* Adjust the width of this column */
+            display: flex;
+            flex-direction: column;
+        }
+        .equal-height-col > .card {
+            flex: 1; /* Ensures the card fills the height */
+        }
+
+        /* Adjust Future Widget Styling */
+        .future-widget-container {
+            width: 100%; /* Take full width below Personal Info */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4 equal-height-row">
+    <!-- Left Column: Personal Info and Future Widget (Stacked) -->
+    <div class="equal-height-col">
+        <!-- Interactive User Card -->
+        <div class="card border-dark interactive-card">
+            <div class="card-header">
+                Personal Info
+            </div>
+                <div class="card-body">
+                    <!-- Name and Email (Non-Interactive) -->
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/user-male-circle.png" alt="Name Icon">
+                        <span class="user-text" id="userName">{{ user.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/email-open.png" alt="Email Icon">
+                        <span class="user-text" id="userEmail">{{ user.email }}</span>
+                    </div>
+                    <div class="separator"></div>
+                    <!-- Additional Information -->
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/diploma.png" alt="Field of Study Icon">
+                        <span class="description-text" id="fieldOfStudy">{{ response.field_of_study or 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/medal.png" alt="GPA Icon">
+                        <span class="description-text" id="gpa">GPA ({{ response.gpa if response.gpa is not none else 'N/A' }})</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/calendar.png" alt="Expected Graduation Icon">
+                        <span class="description-text" id="expectedGraduation">{{ response.expected_graduation or 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/gender.png" alt="Gender Icon">
+                        <span class="description-text" id="genderIdentity">{{ response.gender_identity or 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/home.png" alt="Housing Icon">
+                        <span class="description-text" id="housing">{{ response.housing or 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/money.png" alt="Income Icon">
+                        <span class="description-text" id="meanYearlyIncome">${{ response.mean_yearly_income if response.mean_yearly_income is not none else 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/money-bag.png" alt="Scholarships Icon">
+                        <span class="description-text" id="expectedYearlyScholarships">${{ response.expected_yearly_scholarships if response.expected_yearly_scholarships is not none else 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/first-generation.png" alt="First Gen:">
+                        <span class="description-text" id="firstGenCollegeStudent">{{ 'First Gen' if response.first_gen_college_student else 'Not First Gen' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <img src="https://img.icons8.com/ios-filled/24/007bff/group.png" alt="Race/Ethnicity:">
+                        <span class="description-text" id="raceEthnicity">{{ response.race_ethnicity or 'N/A' }}</span>
+                    </div>
+                </div>
+
+        </div>
+
+        <!-- Future Widget -->
+        <div class="card border-dark future-widget-container">
+            <div class="card-header text-white" style="background-color: #007bff;">
+                Future Widget
+            </div>
+            <div class="card-body">
+                <div class="tall-green-box" style="height: 400px;">
+                    <!-- Placeholder Content -->
+                    <p>Future Widget Content Here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Tuition & Fees (Takes up 50% of the width) -->
+    <div class="flip-card-container">
+        <div class="card border-dark flip-card">
+            <div class="card-header text-white" style="background-color: #007bff;">
+                Tuition & Fees
+            </div>
+            <div class="card-body" style="height: 600px;">
+                <div class="flip-card" id="flipCard">
+                    <div class="flip-card-inner" id="flipCardInner">
+                        <!-- Front Side -->
+                        <div class="flip-card-front p-4">
+                            <h5>Florida Resident</h5>
+                            <p>Total Annual Cost: <span class="cost-amount">$27,278</span></p>
+                            <canvas id="chartFront" style="height: 300px;"></canvas>
+                        </div>
+                        <!-- Back Side -->
+                        <div class="flip-card-back p-4">
+                            <h5>Non-Florida Resident</h5>
+                            <p>Total Annual Cost: <span class="cost-amount">$39,676</span></p>
+                            <canvas id="chartBack" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-indicator">
+                    <span id="indicatorFront" class="active"></span>
+                    <span id="indicatorBack"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+    {{ super() }}
+    <!-- JavaScript for Interactive User Card -->
+    <script>
+        /**
+         * Initializes and populates the interactive card with user and response data.
+         * @param {Object} user - The user data.
+         * @param {Object} response - The response data from ScholarshipApplicationForm.
+         */
+        function initializeInteractiveCard(user, response) {
+            // Populate Name and Email
+            document.getElementById('userName').textContent = user.name || 'N/A';
+            document.getElementById('userEmail').textContent = user.email || 'N/A';
+
+            // Populate Additional Information
+            document.getElementById('fieldOfStudy').textContent = response.field_of_study || 'N/A';
+            document.getElementById('gpa').textContent = response.gpa !== null ? `GPA (${response.gpa.toFixed(2)})` : 'GPA (N/A)';
+            document.getElementById('expectedGraduation').textContent = response.expected_graduation || 'N/A';
+            document.getElementById('genderIdentity').textContent = response.gender_identity || 'N/A';
+            document.getElementById('housing').textContent = response.housing || 'N/A';
+            document.getElementById('firstGenCollegeStudent').textContent = response.first_gen_college_student ? 'First Gen' : 'Not First Gen';
+            document.getElementById('raceEthnicity').textContent = response.race_ethnicity || 'N/A';
+            document.getElementById('meanYearlyIncome').textContent = response.mean_yearly_income !== null ? `$${response.mean_yearly_income.toLocaleString()}` : 'N/A';
+            document.getElementById('expectedYearlyScholarships').textContent = response.expected_yearly_scholarships !== null ? `$${response.expected_yearly_scholarships.toLocaleString()}` : 'N/A';
+        }
+
+
+    </script>
+
+    <!-- JavaScript for Tuition & Fees Flip Card -->
+    <script>
+        function initializeFlipCard(showResidentFirst) {
+            const flipCard = document.getElementById('flipCard');
+            const indicatorFront = document.getElementById('indicatorFront');
+            const indicatorBack = document.getElementById('indicatorBack');
+            const frontSide = document.querySelector('.flip-card-front');
+            const backSide = document.querySelector('.flip-card-back');
+
+            const frontTitle = frontSide.querySelector('h5');
+            const frontCost = frontSide.querySelector('.cost-amount');
+            const backTitle = backSide.querySelector('h5');
+            const backCost = backSide.querySelector('.cost-amount');
+
+            // Chart elements for front and back sides
+            const chartFront = document.getElementById('chartFront').getContext('2d');
+            const chartBack = document.getElementById('chartBack').getContext('2d');
+
+            // Set styles and content based on showResidentFirst
+            if (showResidentFirst) {
+                // Florida Resident on Front
+                frontTitle.textContent = 'Florida Resident';
+                frontCost.textContent = '$27,278';
+
+                // Non-Florida Resident on Back
+                backTitle.textContent = 'Non-Florida Resident';
+                backCost.textContent = '$39,676';
+
+                // Create front chart for Florida Resident
+    // Create front chart for Florida Resident
+    new Chart(chartFront, {
+        type: 'pie',
+        data: {
+            labels: ['Tuition', 'Fees', 'Loan Fee', 'Books', 'Housing', 'Food', 'Transportation', 'Personal'],
+            datasets: [{
+                label: 'Florida Resident Costs',
+                data: [3084, 199, 21, 675, 4212, 2328, 1431, 1689],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false, // Prevents squishing
+            responsive: true,
+        }
+    });
+
+
+                // Create back chart for Non-Florida Resident
+                new Chart(chartBack, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Tuition', 'Fees', 'Loan Fee', 'Books', 'Housing', 'Food', 'Transportation', 'Personal'],
+                        datasets: [{
+                            label: 'Non-Florida Resident Costs',
+                            data: [9283, 199, 21, 675, 4212, 2328, 1431, 1689],
+                            backgroundColor: [
+                                'rgba(55, 55, 55, 0.7)',
+                                'rgba(35, 35, 35, 0.7)',
+                                'rgba(75, 75, 75, 0.7)',
+                                'rgba(85, 85, 85, 0.7)',
+                                'rgba(95, 95, 95, 0.7)',
+                                'rgba(105, 105, 105, 0.7)',
+                                'rgba(115, 115, 115, 0.7)',
+                                'rgba(125, 125, 125, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(25, 25, 25, 1)',
+                                'rgba(45, 45, 45, 1)',
+                                'rgba(65, 65, 65, 1)',
+                                'rgba(85, 85, 85, 1)',
+                                'rgba(105, 105, 105, 1)',
+                                'rgba(125, 125, 125, 1)',
+                                'rgba(145, 145, 145, 1)',
+                                'rgba(165, 165, 165, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+        options: {
+            maintainAspectRatio: false, // Prevents squishing
+            responsive: true,
+        }
+                });
+            } else {
+                // Non-Florida Resident on Front
+                frontTitle.textContent = 'Non-Florida Resident';
+                frontCost.textContent = '$39,676';
+
+                // Florida Resident on Back
+                backTitle.textContent = 'Florida Resident';
+                backCost.textContent = '$27,278';
+
+                // Create front chart for Non-Florida Resident
+                new Chart(chartFront, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Tuition', 'Fees', 'Loan Fee', 'Books', 'Housing', 'Food', 'Transportation', 'Personal'],
+                        datasets: [{
+                            label: 'Non-Florida Resident Costs',
+                            data: [9283, 199, 21, 675, 4212, 2328, 1431, 1689],
+                            backgroundColor: [
+                                'rgba(55, 55, 55, 0.7)',
+                                'rgba(35, 35, 35, 0.7)',
+                                'rgba(75, 75, 75, 0.7)',
+                                'rgba(85, 85, 85, 0.7)',
+                                'rgba(95, 95, 95, 0.7)',
+                                'rgba(105, 105, 105, 0.7)',
+                                'rgba(115, 115, 115, 0.7)',
+                                'rgba(125, 125, 125, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(25, 25, 25, 1)',
+                                'rgba(45, 45, 45, 1)',
+                                'rgba(65, 65, 65, 1)',
+                                'rgba(85, 85, 85, 1)',
+                                'rgba(105, 105, 105, 1)',
+                                'rgba(125, 125, 125, 1)',
+                                'rgba(145, 145, 145, 1)',
+                                'rgba(165, 165, 165, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+        options: {
+            maintainAspectRatio: false, // Prevents squishing
+            responsive: true,
+        }
+                });
+
+                // Create back chart for Florida Resident
+                new Chart(chartBack, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Tuition', 'Fees', 'Loan Fee', 'Books', 'Housing', 'Food', 'Transportation', 'Personal'],
+                        datasets: [{
+                            label: 'Florida Resident Costs',
+                            data: [3084, 199, 21, 675, 4212, 2328, 1431, 1689],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+        options: {
+            maintainAspectRatio: false, // Prevents squishing
+            responsive: true,
+        }
+                });
+            }
+
+            // Add event listener for card click to flip
+            flipCard.addEventListener('click', function() {
+                flipCard.classList.toggle('active');
+                if (flipCard.classList.contains('active')) {
+                    indicatorFront.classList.remove('active');
+                    indicatorBack.classList.add('active');
+                } else {
+                    indicatorFront.classList.add('active');
+                    indicatorBack.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize flip card with Florida Resident on Front
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFlipCard(true); // Pass true for Florida Resident on front
+        });
+    </script>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}
