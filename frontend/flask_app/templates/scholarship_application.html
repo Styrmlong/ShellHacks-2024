@@ -1,0 +1,230 @@
+<!-- templates/scholarship_application.html -->
+
+{% extends "base.html" %}
+
+{% block title %}
+Find Your Scholarships
+{% endblock %}
+
+{% block content_title %}
+Find Your Scholarships
+{% endblock %}
+
+{% block head %}
+<!-- Include Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Include Flatpickr CSS -->
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<style>
+    /* Center the form and set a maximum width */
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    /* Style the submit button */
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 18px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-submit:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <h3>Education Information</h3>
+    <div class="mb-3">
+        {{ form.years_in_college.label(class="form-label") }}
+        {{ form.years_in_college(class="form-select") }}
+        {% for error in form.years_in_college.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.field_of_study.label(class="form-label") }}
+        {{ form.field_of_study(class="form-select", id="field_of_study") }}
+        {% for error in form.field_of_study.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.expected_graduation.label(class="form-label") }}
+        {{ form.expected_graduation(class="form-select") }}
+        {% for error in form.expected_graduation.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.gpa.label(class="form-label") }}
+        {{ form.gpa(class="form-control") }}
+        {% for error in form.gpa.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <h3>Personal Information</h3>
+    <div class="mb-3">
+        {{ form.legal_name.label(class="form-label") }}
+        {{ form.legal_name(class="form-control") }}
+        {% for error in form.legal_name.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.preferred_name.label(class="form-label") }}
+        {{ form.preferred_name(class="form-control") }}
+        {% for error in form.preferred_name.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.date_of_birth.label(class="form-label") }}
+        {{ form.date_of_birth(class="form-control", id="date_of_birth") }}
+        {% for error in form.date_of_birth.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <h3>Gender Identity</h3>
+    <div class="mb-3">
+        {{ form.gender_identity.label(class="form-label") }}
+        {{ form.gender_identity(class="form-select", id="gender_identity") }}
+        {% for error in form.gender_identity.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3" id="gender_self_describe_field" style="display: none;">
+        {{ form.gender_self_describe.label(class="form-label") }}
+        {{ form.gender_self_describe(class="form-control") }}
+        {% for error in form.gender_self_describe.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <!-- Removed 'Sex Assigned at Birth' section -->
+    <h3>Additional Demographics</h3>
+    <div class="mb-3">
+        {{ form.florida_resident.label(class="form-label") }}
+        {% for subfield in form.florida_resident %}
+            <div class="form-check">
+                {{ subfield(class="form-check-input", id=subfield.id) }}
+                {{ subfield.label(class="form-check-label", for=subfield.id) }}
+            </div>
+        {% endfor %}
+        {% for error in form.florida_resident.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.first_gen_college_student.label(class="form-label") }}
+        {% for subfield in form.first_gen_college_student %}
+            <div class="form-check">
+                {{ subfield(class="form-check-input", id=subfield.id) }}
+                {{ subfield.label(class="form-check-label", for=subfield.id) }}
+            </div>
+        {% endfor %}
+        {% for error in form.first_gen_college_student.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <h3>Race/Ethnicity</h3>
+    <div class="mb-3">
+        {{ form.race_ethnicity.label(class="form-label") }}
+        {{ form.race_ethnicity(class="form-select", id="race_ethnicity") }}
+        {% for error in form.race_ethnicity.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3" id="race_self_describe_field" style="display: none;">
+        {{ form.race_self_describe.label(class="form-label") }}
+        {{ form.race_self_describe(class="form-control") }}
+        {% for error in form.race_self_describe.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <h3>Financial Information</h3>
+    <div class="mb-3">
+        {{ form.mean_yearly_income.label(class="form-label") }}
+        {{ form.mean_yearly_income(class="form-control") }}
+        {% for error in form.mean_yearly_income.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.expected_yearly_scholarships.label(class="form-label") }}
+        {{ form.expected_yearly_scholarships(class="form-control") }}
+        {% for error in form.expected_yearly_scholarships.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        {{ form.housing.label(class="form-label") }}
+        {{ form.housing(class="form-select") }}
+        {% for error in form.housing.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mt-4 text-center">
+        {{ form.submit(class="btn-submit") }}
+    </div>
+</form>
+{% endblock %}
+
+<!-- Include Select2 JS and Flatpickr JS, and initialize the searchable dropdown and date picker -->
+{% block body %}
+<!-- Include Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Include Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 on field_of_study
+    $('#field_of_study').select2({
+        placeholder: "Select a major",
+        allowClear: true
+    });
+
+    // Initialize Flatpickr on date_of_birth
+    flatpickr("#date_of_birth", {
+        dateFormat: "m/d/Y",
+        maxDate: "today",
+        altInput: true,
+        altFormat: "F j, Y",
+        allowInput: false
+    });
+
+    function toggleGenderSelfDescribe() {
+        var genderIdentity = document.getElementById('gender_identity').value;
+        var genderSelfDescribeField = document.getElementById('gender_self_describe_field');
+        if (genderIdentity === 'self-describe') {
+            genderSelfDescribeField.style.display = 'block';
+        } else {
+            genderSelfDescribeField.style.display = 'none';
+        }
+    }
+
+    function toggleRaceSelfDescribe() {
+        var raceEthnicity = document.getElementById('race_ethnicity').value;
+        var raceSelfDescribeField = document.getElementById('race_self_describe_field');
+        if (raceEthnicity === 'self-describe') {
+            raceSelfDescribeField.style.display = 'block';
+        } else {
+            raceSelfDescribeField.style.display = 'none';
+        }
+    }
+
+    document.getElementById('gender_identity').addEventListener('change', toggleGenderSelfDescribe);
+    document.getElementById('race_ethnicity').addEventListener('change', toggleRaceSelfDescribe);
+    // Call functions on page load in case of form errors
+    toggleGenderSelfDescribe();
+    toggleRaceSelfDescribe();
+});
+</script>
+{% endblock %}

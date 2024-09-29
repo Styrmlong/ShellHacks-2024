@@ -36,5 +36,4 @@ Languages: python
 
 
 To run the project
-pip install -r python-ai-backend/app/requirements.txt
-python python-ai-backend/app/main.py
+pip install flask

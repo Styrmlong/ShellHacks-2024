@@ -1,0 +1,208 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+
+{% block title %}
+Lets Talk Data
+{% endblock %}
+
+{% block content_title %}
+Lets Talk Data
+{% endblock %}
+
+{% block content %}
+<!-- templates/averages.html -->
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        color: black;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    table {
+        margin: auto;
+        border-collapse: collapse;
+        width: 80%;
+        background-color: #a9c1b1;
+    }
+    th, td {
+        border: 1px solid #000000;
+        text-align: left;
+        padding: 12px;
+    }
+    th {
+        background-color: #73b989;
+        color: black;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #000000;
+    }
+    #averageChart, #spendingPieChart {
+        max-width: 80%;
+        margin: 20px auto;
+    }
+</style>
+
+<h1>Average Student Spending</h1>
+<p style = "text-align: left; margin-bottom: 60px">
+    College life comes with a variety of expenses and understanding the average costs for categories such as housing, food, transportation, and entertainment can help you better manage your finances. Being cautious with your spending can help you avoid debt and put you on the road to financial success. See how your spending compares and gain an understanding of typical expenses.
+</p>
+<!-- Ensure the 'averages' variable is properly checked -->
+{% if averages is not none %}
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Average</th>
+        </tr>
+        {% for category, average in averages.items() %}
+        <tr>
+            <td>{{ category.replace('_', ' ').title() }}</td>
+            <td>{{ average }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p style="text-align: center;">No data available to display.</p>
+{% endif %}
+
+
+<!-- Chart Container -->
+<div class="chart-container" style="text-align: center;">
+    <canvas id="averageChart" width="600" height="400"></canvas>
+</div>
+
+<!-- Chart Container for Pie Chart -->
+<div class="chart-container" style="text-align: center;">
+    <canvas id="spendingPieChart" width="600" height="400"></canvas>
+</div>
+
+<div class="footer">
+    <p>Data Source: <a href="#">student_spending.csv</a></p>
+</div>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- JavaScript to create the chart -->
+<script>
+    // Check if the averages dictionary is available
+    {% if averages is not none %}
+        // Convert the averages dictionary to labels and data arrays for the chart
+        const labels = {{ average_keys}};  // Extract keys as labels
+        const data = {{ averages_values}};  // Extract values as data
+
+        // Create a bar chart using Chart.js
+        const ctx = document.getElementById('averageChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,  // X-axis labels from category names
+                datasets: [{
+                    label: 'Average Spending',
+                    data: data,  // Y-axis data from averages
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { 
+                        beginAtZero: true,  // Start the Y-axis from zero
+                        title: {
+                            display: true,
+                            text: 'Average Amount ($)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Spending Categories'
+                        }
+                    }
+                }
+            }
+        });
+    {% else %}
+        console.error('No data available for the chart.');
+    {% endif %}
+</script>
+<p>
+    The dataset provides a comprehensive overview of college students' average spending habits and income distribution across several categories. The average age of 21.68 suggests that the data primarily represents undergraduate students. Major expenses like tuition, averaging $4,520.40, and housing at $696.01, are significant financial burdens, underscoring the need for effective budgeting strategies and financial planning. Categories like food ($252.64), transportation ($124.64), and personal care ($60.70) reflect necessary monthly expenditures, while technology costs ($178.30) suggest that students invest in gadgets and software to support their studies. Spending in discretionary categories such as entertainment ($84.81) and miscellaneous expenses ($108.91) points to efforts to maintain a balanced lifestyle. The modest financial aid amount of $504.77 per month indicates that while some students receive financial support, it may not cover all educational costs.
+</p>
+<p>
+    The data is more than just numbers; it’s a reflection of the financial challenges and priorities you might face as a college student. By understanding these averages, you can see where your money typically goes and how your spending compares to that of other students. This insight can empower you to make smarter financial decisions, like identifying unnecessary expenses, reallocating funds, or exploring additional financial aid options. Even small changes, such as budgeting more effectively for food or cutting back on entertainment costs can have a big impact over time. Our goal is to help you build better financial habits, avoid the common pitfalls of overspending, and ultimately take control of your financial future. This information is here to support you in not just succeeding academically, but thriving financially as well.
+</p>
+<script>
+    {% if percentages is not none %}
+        const pieLabels = {{ percentage_keys }};
+        const pieData = {{ percentage_values }};
+
+        const pieCtx = document.getElementById('spendingPieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    label: 'Spending Distribution',
+                    data: pieData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(201, 203, 207, 0.2)',
+                        'rgba(140, 199, 181, 0.2)',
+                        'rgba(231, 233, 235, 0.2)',
+                        'rgba(246, 209, 138, 0.2)',
+                        'rgba(255, 182, 193, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(201, 203, 207, 1)',
+                        'rgba(140, 199, 181, 1)',
+                        'rgba(231, 233, 235, 1)',
+                        'rgba(246, 209, 138, 1)',
+                        'rgba(255, 182, 193, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {display: true,
+                        text: 'Spending Distribution by Category (%)'
+                    }
+                }
+            }
+        });
+    {% else %}
+        console.error('No data available for the pie chart.');
+    {% endif %}
+</script>
+
+{% endblock %}
+
+
+
+
