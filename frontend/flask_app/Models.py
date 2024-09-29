@@ -1,6 +1,8 @@
 from frontend.flask_app.Extensions import DATABASE as db
 
 
+
+
 class ResponseModel(db.Model):
     __tablename__ = 'response'
 

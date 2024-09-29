@@ -1,9 +1,9 @@
 # Blueprints/User.py
 
-from flask import Blueprint, session, redirect, url_for, render_template
+from flask import Blueprint, session, redirect, url_for, render_template, flash
 import pandas as pd
 
-from frontend.flask.Forms import graduation_year
+
 from frontend.flask_app.Extensions import oauth
 from frontend.flask_app.Models import db, UserModel, ResponseModel
 from urllib.parse import urlencode, quote_plus
@@ -28,48 +28,69 @@ def login():
 # Auth0 callback route
 @user_bp.route('/callback')
 def callback():
-    token = oauth.auth0.authorize_access_token()
+    try:
+        token = oauth.auth0.authorize_access_token()
+    except Exception as e:
+        return redirect(url_for("user.login"))
+
     session["user"] = token
-    user_info = token["userinfo"]
-    auth0_id = user_info["sub"]
-    # Check if user exists in the database
-    user = UserModel.query.filter_by(auth0_id=auth0_id).first()
-    assesment = user.responses
-    if not user or not assesment:
+    user_info = token.get("userinfo", {})
+    auth0_id = user_info.get("sub")
+
+    if not auth0_id:
+        return redirect(url_for("user.login"))
+
+    try:
+        user = UserModel.query.filter_by(auth0_id=auth0_id).first()
+    except Exception as e:
+        return redirect(url_for("user.login"))
+
+    if not user or not user.responses:
         # Create a new user
-        user = UserModel(
+        new_user = UserModel(
             auth0_id=auth0_id,
             email=user_info.get("email"),
             name=user_info.get("name")
         )
-        if not user:
-            db.session.add(user)
+        try:
+            db.session.add(new_user)
             db.session.commit()
-        session["user_id"] = user.id
-        return redirect(url_for("assessment.scholarship_application"))
+            session["user_id"] = new_user.id
+            return redirect(url_for("assessment.scholarship_application"))
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while creating your account. Please try again.", "danger")
+            return redirect(url_for("user.login"))
 
     # Store user ID in session
     session["user_id"] = user.id
 
     return redirect(url_for("user.profile"))
 
+
 # Profile route (requires authentication)
 @user_bp.route('/profile')
 def profile():
-    if "user" not in session:
+    if "user" not in session or not session["user"].get("userinfo"):
         return redirect(url_for("user.login"))
 
-    # Get user info from session
     user_info = session["user"]["userinfo"]
+    auth0_id = user_info.get("sub")
 
-    # Query the database for the user's response based on their ID
-    user = UserModel.query.filter_by(auth0_id=user_info['sub']).first()
+    if not auth0_id:
+        logout()
+        return redirect(url_for("user.login"))
 
-    # Fetch response related to the user if it exists
+    user = UserModel.query.filter_by(auth0_id=auth0_id).first()
+
+    if not user:
+        logout()
+        return redirect(url_for("user.login"))
+
     response = ResponseModel.query.filter_by(user_id=user.id).first()
-
+    if response is None:
+        return redirect(url_for("assessment.scholarship_application"))
     return render_template('dashboard_widgets.html', user=user_info, response=response)
-
 
 @user_bp.route('/datapage')
 def datapage():

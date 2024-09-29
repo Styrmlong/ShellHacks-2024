@@ -9,6 +9,8 @@ from flask import (
     current_app, session
 )
 from datetime import datetime, date
+
+from frontend.flask_app.Blueprints.User import logout
 from frontend.flask_app.Forms import ScholarshipApplicationForm
 from frontend.flask_app.Models import db, UserModel, ResponseModel  # Ensure correct import path
 import os
@@ -18,6 +20,17 @@ assesment_bp = Blueprint("assessment", __name__, url_prefix="/assessment")  # Co
 
 @assesment_bp.route('/', methods=['GET', 'POST'])
 def scholarship_application():
+
+
+    user_info = session.get("user", {}).get("userinfo", {})
+    auth0_id = user_info.get("sub")
+
+    if not auth0_id:
+        flash("User not authenticated.", "danger")
+        return redirect(url_for("user.login"))
+
+    user = UserModel.query.filter_by(auth0_id=auth0_id).first()
+
     form = ScholarshipApplicationForm()
 
     # Dynamically populate expected_graduation choices
