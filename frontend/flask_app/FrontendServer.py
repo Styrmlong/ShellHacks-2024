@@ -3,13 +3,14 @@
 from flask_migrate import Migrate
 # Removed: from jupyter_core.migrate import migrate  # This was incorrect
 
-import frontend.flask_app.Config as Config
 from flask import Flask, render_template, redirect, url_for
-from frontend.flask_app.Extensions import oauth, DATABASE  # Ensure Extensions.py initializes SQLAlchemy as DATABASE
-from frontend.flask_app.Config import config, SQLALCHEMY_DATABASE_URI  # Load configuration
-from frontend.flask_app.Blueprints.User import user_bp  # Import the user authentication blueprint
-from frontend.flask_app.Blueprints.Assesment import assesment_bp
-from frontend.flask_app.Blueprints.Testing import test_bp
+from Extensions import oauth, DATABASE  # Ensure Extensions.py initializes SQLAlchemy as DATABASE
+from Config import config, SQLALCHEMY_DATABASE_URI  # Load configuration
+from Blueprints.User import user_bp  # Import the user authentication blueprint
+from Blueprints.Assesment import assesment_bp
+from Blueprints.Testing import test_bp
+
+import Config
 
 app = Flask(__name__)
 app.secret_key = config["WEBAPP"]["SECRET_KEY"]
